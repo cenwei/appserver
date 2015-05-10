@@ -1,7 +1,6 @@
 Welcome to Sharelog AppServer 
 
-# TODO: add travis token
-[![Build Status](https://magnum.travis-ci.com/sharelog/appserver.svg?token=$TOKEN)](https://magnum.travis-ci.com/sharelog/appserver)
+[![Build Status](https://magnum.travis-ci.com/sharelog/appserver.svg?token=azLpbBtZFbKXXDc7eB49)](https://magnum.travis-ci.com/sharelog/appserver)
 
 Dependencies
 ============
