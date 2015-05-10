@@ -22,5 +22,4 @@ script:
         - go test -cover ./...
 
 notification:
-        # TODO: add slack notification after we set up slack
-        # slack: sharelog:$TOKEN
+        slack: sharelog:z8KIUbtkIew4jN9CTTVLQNm2
