@@ -10,6 +10,11 @@ func main() {
 	if len(os.Args) <= 1 {
 		log.Fatal("can't read config file")
 	}
+	configPath := os.Args[1]
+	config := Configuration{}
+	if err := ReadConfig(&config, configPath); err != nil {
+		log.Fatal(err)
+	}
 
 	// TODO:
 }
