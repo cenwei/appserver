@@ -19,24 +19,36 @@ var (
 	Fatal = log.New(os.Stderr, "[F] ", flag)
 )
 
-var gopath = os.Getenv("GOPATH") + "/src/"
-var goroot = os.Getenv("GOROOT") + "/src/"
-
 // Fatalf mirror log Fatalf
 func Fatalf(format string, args ...interface{}) { Fatal.Fatalf(backTrace()+format+"\n", args...) }
 
+// Errorf mirror log Printf
+func Errorf(format string, args ...interface{}) { Error.Printf(backTrace()+format+"\n", args...) }
+
+// Debugf mirror log Printf
+func Debugf(format string, args ...interface{}) { Debug.Printf(backTrace()+format+"\n", args...) }
+
+// Tracef mirror log Printf
+func Tracef(format string, args ...interface{}) { Trace.Printf(backTrace()+format+"\n", args...) }
+
 func backTrace() string {
-	body := bytes.NewBufferString("\n")
+	body := bytes.Buffer{}
+	body.WriteByte('\n')
 
 	for skip := 2; ; skip++ {
 		_, file, line, ok := runtime.Caller(skip)
 		if !ok {
 			break
 		}
-		if file[len(file)-1] == 'c' {
+		file = file[strings.Index(file, "/src/")+5 : len(file)]
+		if strings.HasPrefix(file, "runtime/") {
 			continue
 		}
-		body.WriteString("\t" + strings.TrimPrefix(strings.TrimPrefix(file, gopath), goroot) + "#" + strconv.Itoa(line) + "\n")
+		body.WriteByte('\t')
+		body.WriteString(file)
+		body.WriteString("#")
+		body.WriteString(strconv.Itoa(line))
+		body.WriteByte('\n')
 	}
 
 	return body.String()
