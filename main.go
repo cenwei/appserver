@@ -1,8 +1,10 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
+	"github.com/hprose/hprose-go/hprose"
 	"github.com/sharelog/appserver/log"
 )
 
@@ -25,7 +27,21 @@ func main() {
 	}
 
 	log.Tracef("set log level to %s:%v", config.LOG.Level, logLevelMapping[config.LOG.Level])
+	log.Tracef("listen server on %v", config.HTTP.Host)
 
 	// set log level
 	log.SetLogLevel(logLevelMapping[config.LOG.Level])
+
+	// initialize hprose service
+	handler := hprose.NewHttpService()
+	handler.AddMethods(&publicServices{})
+	if logLevelMapping[config.LOG.Level] < log.LevelError {
+		handler.GetEnabled = true
+		handler.DebugEnabled = true
+	}
+
+	// start server
+	if err := http.ListenAndServe(config.HTTP.Host, handler); err != nil {
+		log.Fatalf("cant listen and serve http: %v", err)
+	}
 }
