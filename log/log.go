@@ -11,6 +11,17 @@ import (
 
 const flag = log.Ldate | log.Ltime
 
+// Level describes log level
+type Level int
+
+// Log levels
+const (
+	LevelTrace Level = iota
+	LevelDebug
+	LevelError
+	LevelFatal
+)
+
 // Different Level Logger
 var (
 	Trace = log.New(os.Stdout, "[T] ", flag)
@@ -19,17 +30,39 @@ var (
 	Fatal = log.New(os.Stderr, "[F] ", flag)
 )
 
+// default logLevel is trace
+var logLevel Level
+
+// SetLogLevel set log level
+func SetLogLevel(level Level) {
+	if level >= LevelTrace && level <= LevelFatal {
+		logLevel = level
+	}
+}
+
 // Fatalf mirror log Fatalf
 func Fatalf(format string, args ...interface{}) { Fatal.Fatalf(backTrace()+format+"\n", args...) }
 
 // Errorf mirror log Printf
-func Errorf(format string, args ...interface{}) { Error.Printf(backTrace()+format+"\n", args...) }
+func Errorf(format string, args ...interface{}) {
+	if logLevel <= LevelError {
+		Error.Printf(backTrace()+format+"\n", args...)
+	}
+}
 
 // Debugf mirror log Printf
-func Debugf(format string, args ...interface{}) { Debug.Printf(backTrace()+format+"\n", args...) }
+func Debugf(format string, args ...interface{}) {
+	if logLevel <= LevelDebug {
+		Debug.Printf(backTrace()+format+"\n", args...)
+	}
+}
 
 // Tracef mirror log Printf
-func Tracef(format string, args ...interface{}) { Trace.Printf(backTrace()+format+"\n", args...) }
+func Tracef(format string, args ...interface{}) {
+	if logLevel <= LevelTrace {
+		Trace.Printf(backTrace()+format+"\n", args...)
+	}
+}
 
 func backTrace() string {
 	body := bytes.Buffer{}
