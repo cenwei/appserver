@@ -8,6 +8,16 @@ import (
 	"github.com/sharelog/appserver/log"
 )
 
+// headers
+const (
+	HeaderAccessToken = "Access-Token"
+)
+
+// session keys
+const (
+	SessionXXTEA = "XXTEA"
+)
+
 var logLevelMapping = map[string]log.Level{
 	"trace": log.LevelTrace,
 	"debug": log.LevelDebug,
@@ -38,6 +48,11 @@ func main() {
 	debug := logLevelMapping[config.LOG.Level] < log.LevelError
 	handler := NewHTTPHproseService(&normalStub{}, debug)
 	SSLHandler := NewHTTPHproseService(&sslStub{}, debug)
+	handler.SetFilter(xxteaFilter{
+		getter:            nil, // TODO: need to pass session in
+		headerAccessToken: HeaderAccessToken,
+		sessionXXTEA:      SessionXXTEA,
+	})
 
 	// register handlers for given pattern
 	http.Handle(config.HTTP.SSLRoute, SSLHandler)

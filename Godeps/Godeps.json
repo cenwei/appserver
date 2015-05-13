@@ -8,8 +8,22 @@
 			"Rev": "d4f9254685f73a4225c5b1d048efc1ef2edb75da"
 		},
 		{
+			"ImportPath": "github.com/jtolds/gls",
+			"Rev": "f1ac7f4f24f50328e6bc838ca4437d1612a0243c"
+		},
+		{
 			"ImportPath": "github.com/scalingdata/gcfg",
 			"Rev": "37aabad69cfd3d20b8390d902a8b10e245c615ff"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/assertions",
+			"Comment": "1.5.0-379-g75acd40",
+			"Rev": "75acd402ca38dc205641a826bb58b9de014926dd"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey",
+			"Comment": "1.5.0-380-g1d9daca",
+			"Rev": "1d9daca83fc3cf35d01b9d0ac2debad3453bf178"
 		},
 		{
 			"ImportPath": "github.com/xxtea/xxtea-go/xxtea",
