@@ -3,8 +3,21 @@
 	"GoVersion": "go1.4.1",
 	"Deps": [
 		{
+			"ImportPath": "github.com/hprose/hprose-go/hprose",
+			"Comment": "v1.4.1-4-gd4f9254",
+			"Rev": "d4f9254685f73a4225c5b1d048efc1ef2edb75da"
+		},
+		{
 			"ImportPath": "github.com/scalingdata/gcfg",
 			"Rev": "37aabad69cfd3d20b8390d902a8b10e245c615ff"
+		},
+		{
+			"ImportPath": "github.com/xxtea/xxtea-go/xxtea",
+			"Rev": "0a1603ba22ae4edf0f8e62d93b615983e96f5f56"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "7dbad50ab5b31073856416cdcfeb2796d682f844"
 		}
 	]
 }
