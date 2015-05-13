@@ -5,7 +5,8 @@ import "github.com/scalingdata/gcfg"
 // Configuration is appServer's configuration
 type Configuration struct {
 	HTTP struct {
-		Host string
+		Host     string
+		SSLRoute string `gcfg:"route-ssl"`
 	}
 	Security struct {
 		XXTEAKey string `gcfg:"xxtea-key"`

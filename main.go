@@ -27,21 +27,33 @@ func main() {
 	}
 
 	log.Tracef("set log level to %s:%v", config.LOG.Level, logLevelMapping[config.LOG.Level])
-	log.Tracef("listen server on %v", config.HTTP.Host)
+	log.Tracef("start normal service on %v", config.HTTP.Host)
+	log.Tracef("start ssl service on %v%s", config.HTTP.Host, config.HTTP.SSLRoute)
+	log.Tracef("......")
 
 	// set log level
 	log.SetLogLevel(logLevelMapping[config.LOG.Level])
 
 	// initialize hprose service
-	handler := hprose.NewHttpService()
-	handler.AddMethods(&publicServices{})
-	if logLevelMapping[config.LOG.Level] < log.LevelError {
-		handler.GetEnabled = true
-		handler.DebugEnabled = true
-	}
+	debug := logLevelMapping[config.LOG.Level] < log.LevelError
+	handler := NewHTTPHproseService(&normalStub{}, debug)
+	SSLHandler := NewHTTPHproseService(&sslStub{}, debug)
+
+	// register handlers for given pattern
+	http.Handle(config.HTTP.SSLRoute, SSLHandler)
+	http.Handle("/", handler)
 
 	// start server
-	if err := http.ListenAndServe(config.HTTP.Host, handler); err != nil {
+	if err := http.ListenAndServe(config.HTTP.Host, nil); err != nil {
 		log.Fatalf("cant listen and serve http: %v", err)
 	}
+}
+
+// NewHTTPHproseService initialize an http hprose service
+func NewHTTPHproseService(stub interface{}, debug bool) *hprose.HttpService {
+	service := hprose.NewHttpService()
+	service.AddMethods(stub)
+	service.GetEnabled = debug
+	service.DebugEnabled = debug
+	return service
 }
