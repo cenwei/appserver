@@ -2,7 +2,7 @@
 machine:
         services:
                 # mysql postgresql memcache mongo redis automatically run, see circle-ci for reference
-                - couchbase-server
+                # - couchbase-server
         environment:
                 # DATABASE_URL: mysql://dbuser:dbpass@127.0.0.1:3306/dbname
 
@@ -11,12 +11,8 @@ dependencies:
         pre:
                 - go get golang.org/x/tools/cmd/cover
                 - go get github.com/golang/lint/golint
-                - go get github.com/smartystreets/goconvey/convey
-                - go get github.com/smartystreets/assertions
                 - go get github.com/tools/godep
-                - godep restore
         override:
-                - godep build
 
 # database
 database:
@@ -25,12 +21,11 @@ database:
                 # - mysql -u dbuser dbname < database-setup.sql
         post:
 
-
 # test
 test:
         pre:
-                - golint ./...
         override:
+                - golint ./...
                 - go test -cover ./...
 
 # deployment
