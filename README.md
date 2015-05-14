@@ -1,6 +1,6 @@
 Welcome to Sharelog AppServer 
 
-[![Build Status](https://magnum.travis-ci.com/sharelog/appserver.svg?token=azLpbBtZFbKXXDc7eB49)](https://magnum.travis-ci.com/sharelog/appserver)
+[![Circle CI](https://circleci.com/gh/sharelog/appserver.svg?style=svg&circle-token=a52823aea372317d16270f0eade6f9a8d8bb1ca9)](https://circleci.com/gh/sharelog/appserver)
 
 Dependencies
 ============
@@ -17,8 +17,8 @@ Test
 ====
 You may refer to .travis.yml
 
-run `godep restore && go test github.com/sharelog/appserver/...`
+$ `godep restore && go test github.com/sharelog/appserver/...`
 
 For local development, you are suggested to open GoConvey to keep track of testing status.
 
-refs: https://github.com/smartystreets/goconvey
+$ `go get github.com/smartystreets/goconvey`
