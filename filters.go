@@ -3,17 +3,21 @@ package main
 import (
 	"github.com/hprose/hprose-go/hprose"
 	"github.com/sharelog/appserver/session"
-	"github.com/xxtea/xxtea-go/xxtea"
+	"github.com/sharelog/appserver/symmetric"
 )
 
-// xxtea filter
+var _ hprose.Filter = symmetricEncryption{}
+
+// symmetric encryption implements hprose.Filter
+// workflow:
 // get token from hprose context by headerAccessToken
-// get xxtea private key from session by token & sessionXXTEA
-// encrypt and decrypt data using xxtea private key which is unique for clients
-type xxteaFilter struct {
-	getter            session.Getter
+// get private key from session by token & sessionKey
+// encrypt and decrypt data using private key which is unique for clients
+type symmetricEncryption struct {
+	symmetric         symmetric.Symmetric
 	headerAccessToken string // the token header name
-	sessionXXTEA      string // the xxtea key name in map
+	sessionKey        string // the key name in session
+	getter            session.Getter
 }
 
 func getTokenFromContext(headerAccessToken string, context hprose.Context) string {
@@ -24,23 +28,23 @@ func getTokenFromContext(headerAccessToken string, context hprose.Context) strin
 	return ""
 }
 
-func (f xxteaFilter) filterFunc(data []byte, context hprose.Context, isInput bool) []byte {
+func (f symmetricEncryption) filterFunc(data []byte, context hprose.Context, isInput bool) []byte {
 	token := getTokenFromContext(f.headerAccessToken, context)
 	if token != "" {
-		if key, ok := f.getter.Get(token, f.sessionXXTEA).([]byte); ok && key != nil {
+		if key, ok := f.getter.Get(token, f.sessionKey).([]byte); ok && key != nil {
 			if isInput {
-				return xxtea.Decrypt(data, key)
+				return f.symmetric.Decrypt(data, key)
 			}
-			return xxtea.Encrypt(data, key)
+			return f.symmetric.Encrypt(data, key)
 		}
 	}
 	return data
 }
 
-func (f xxteaFilter) InputFilter(data []byte, context hprose.Context) []byte {
+func (f symmetricEncryption) InputFilter(data []byte, context hprose.Context) []byte {
 	return f.filterFunc(data, context, true)
 }
 
-func (f xxteaFilter) OutputFilter(data []byte, context hprose.Context) []byte {
+func (f symmetricEncryption) OutputFilter(data []byte, context hprose.Context) []byte {
 	return f.filterFunc(data, context, false)
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hprose/hprose-go/hprose"
 	"github.com/sharelog/appserver/log"
+	"github.com/sharelog/appserver/symmetric"
 )
 
 // headers
@@ -48,10 +49,11 @@ func main() {
 	debug := logLevelMapping[config.LOG.Level] < log.LevelError
 	handler := NewHTTPHproseService(&normalStub{}, debug)
 	SSLHandler := NewHTTPHproseService(&sslStub{}, debug)
-	handler.SetFilter(xxteaFilter{
+	handler.SetFilter(symmetricEncryption{
 		getter:            nil, // TODO: need to pass session in
+		symmetric:         symmetric.XXTEA{},
 		headerAccessToken: HeaderAccessToken,
-		sessionXXTEA:      SessionXXTEA,
+		sessionKey:        SessionXXTEA,
 	})
 
 	// register handlers for given pattern
