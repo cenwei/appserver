@@ -4,6 +4,7 @@ package session
 type Session interface {
 	Getter
 	Setter
+	Deleter
 	Scavenger
 }
 
@@ -17,7 +18,12 @@ type Setter interface {
 	Set(token string, key string, val interface{}) error
 }
 
-// Scavenger delete data from session
-type Scavenger interface {
+// Deleter delete data from session
+type Deleter interface {
 	Delete(token string, key string)
+}
+
+// Scavenger expires the token
+type Scavenger interface {
+	Expire(token string)
 }
