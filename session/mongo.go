@@ -16,7 +16,7 @@ type Mongo struct {
 	databaseName   string
 	collectionName string
 	expireDuration time.Duration
-	logFunc        func(format string, args ...interface{}) // inject for logFuncging
+	logFunc        func(format string, args ...interface{}) // inject for logging
 }
 
 // NewMongo returns session.Session interface implemented using mongo
@@ -48,7 +48,7 @@ func NewMongo(
 	}
 }
 
-// for functions below, Mongo.logFunc will logFunc all errors
+// for functions below, Mongo.logFunc will log all errors
 
 // Get returns the value according to token & key
 func (m Mongo) Get(token string, key string) interface{} {
