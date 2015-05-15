@@ -15,9 +15,9 @@ config.ini should be provided in args.
 
 Test
 ====
-You may refer to .travis.yml
+You may refer to circle.yml
 
-$ `godep restore && go test github.com/sharelog/appserver/...`
+$ `godep restore && godep go test -cover github.com/sharelog/appserver/...`
 
 For local development, you are suggested to open GoConvey to keep track of testing status.
 
