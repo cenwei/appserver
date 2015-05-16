@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hprose/hprose-go/hprose"
-	"github.com/sharelog/appserver/session"
+	"github.com/sharelog/appserver/sessionStore"
 	"github.com/sharelog/appserver/symmetric"
 )
 
