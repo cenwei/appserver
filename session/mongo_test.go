@@ -1,4 +1,4 @@
-package session
+package sessionStore
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestMongo(t *testing.T) {
 	}
 
 	Convey("given a clean mongo collection", t, func() {
-		mongo := NewMongo(session, "mgo", "token_store", 5*time.Second, t.Logf)
+		mongo := NewMongoSessionStore(session, "mgo", "token_store", 5*time.Second, t.Logf)
 
 		Convey("get data from fresh mongo", func() {
 			So(mongo.Get("token", "key"), ShouldBeNil)
@@ -26,7 +26,7 @@ func TestMongo(t *testing.T) {
 			mongo.Set("token", "key", "random")
 
 			Convey("should get the same data", func() {
-				So(mongo.Get("token", "key"), ShouldResemble, "random")
+				So(mongo.Get("token", "key"), ShouldEqual, "random")
 			})
 		})
 

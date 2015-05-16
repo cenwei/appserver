@@ -1,4 +1,4 @@
-package session
+package sessionStore
 
 import (
 	"log"
@@ -10,8 +10,8 @@ import (
 
 const indexModified = "modified"
 
-// Mongo implements session.Session interface
-type Mongo struct {
+// MongoSessionStore implements SessionStore interface
+type MongoSessionStore struct {
 	mongoSession   *mgo.Session
 	databaseName   string
 	collectionName string
@@ -19,14 +19,14 @@ type Mongo struct {
 	logFunc        func(format string, args ...interface{}) // inject for logging
 }
 
-// NewMongo returns session.Session interface implemented using mongo
-func NewMongo(
+// NewMongoSessionStore returns Session interface implemented using mongo
+func NewMongoSessionStore(
 	session *mgo.Session,
 	databaseName string,
 	collectionName string,
 	expireDuration time.Duration,
 	logFunc func(format string, args ...interface{}),
-) Session {
+) SessionStore {
 	conn := session.Clone()
 	defer conn.Close()
 	c := conn.DB(databaseName).C(collectionName)
@@ -39,7 +39,7 @@ func NewMongo(
 	if logFunc == nil {
 		logFunc = log.Printf
 	}
-	return Mongo{
+	return MongoSessionStore{
 		mongoSession:   session,
 		databaseName:   databaseName,
 		collectionName: collectionName,
@@ -51,7 +51,7 @@ func NewMongo(
 // for functions below, Mongo.logFunc will log all errors
 
 // Get returns the value according to token & key
-func (m Mongo) Get(token string, key string) interface{} {
+func (m MongoSessionStore) Get(token string, key string) interface{} {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
@@ -63,7 +63,7 @@ func (m Mongo) Get(token string, key string) interface{} {
 }
 
 // Set set value in mongodb with token & key
-func (m Mongo) Set(token string, key string, val interface{}) error {
+func (m MongoSessionStore) Set(token string, key string, val interface{}) error {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
@@ -93,7 +93,7 @@ func (m Mongo) Set(token string, key string, val interface{}) error {
 }
 
 // Delete delete a key from mongo according to token
-func (m Mongo) Delete(token string, key string) {
+func (m MongoSessionStore) Delete(token string, key string) {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
@@ -115,7 +115,7 @@ func (m Mongo) Delete(token string, key string) {
 }
 
 // Expire makes a token expired
-func (m Mongo) Expire(token string) {
+func (m MongoSessionStore) Expire(token string) {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
@@ -125,7 +125,7 @@ func (m Mongo) Expire(token string) {
 }
 
 // help functions
-func (m Mongo) findID(c *mgo.Collection, token string) (bson.M, error) {
+func (m MongoSessionStore) findID(c *mgo.Collection, token string) (bson.M, error) {
 	data := bson.M{}
 	err := c.FindId(token).One(&data)
 	switch err {
