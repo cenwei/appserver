@@ -17,7 +17,7 @@ type symmetricEncryption struct {
 	symmetric         symmetric.Symmetric
 	headerAccessToken string // the token header name
 	sessionKey        string // the key name in session
-	getter            session.Getter
+	getter            sessionStore.Getter
 }
 
 func getTokenFromContext(headerAccessToken string, context hprose.Context) string {
