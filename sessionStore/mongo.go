@@ -77,14 +77,12 @@ func (m MongoSessionStore) Set(token string, key string, val interface{}) error 
 
 	// update if exist, else insert
 	if _, ok := data["_id"]; ok {
-		if err := c.UpdateId(token, data); err != nil {
-			m.logFunc("mongo cant update document with token %s: %v", token, err)
+		if err := m.error(c.UpdateId(token, data)); err != nil {
 			return err
 		}
 	} else {
 		data["_id"] = token
-		if err := c.Insert(data); err != nil {
-			m.logFunc("mongo cant insert document with token %s: %v", token, err)
+		if err := m.error(c.Insert(data)); err != nil {
 			return err
 		}
 	}
@@ -109,9 +107,7 @@ func (m MongoSessionStore) Delete(token string, key string) {
 
 	// update document
 	delete(data, key)
-	if err := c.UpdateId(token, data); err != nil {
-		m.logFunc("mongo cant update document with token %s: %v", token, err)
-	}
+	m.error(c.UpdateId(token, data))
 }
 
 // Expire makes a token expired
@@ -119,20 +115,23 @@ func (m MongoSessionStore) Expire(token string) {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
-	if err := c.RemoveId(token); err != nil {
-		m.logFunc("mongo cant remove document with token %s: %v", token, err)
-	}
+	m.error(c.RemoveId(token))
 }
 
 // help functions
 func (m MongoSessionStore) findID(c *mgo.Collection, token string) (bson.M, error) {
 	data := bson.M{}
 	err := c.FindId(token).One(&data)
+	return data, m.error(err)
+}
+
+func (m MongoSessionStore) error(err error) error {
 	switch err {
-	case nil, mgo.ErrNotFound:
+	case mgo.ErrNotFound:
 		err = nil
-	default:
-		m.logFunc("mongo cant query document with token %s: %v", token, err)
 	}
-	return data, err
+	if err != nil {
+		m.logFunc("mongodb error %v", err)
+	}
+	return err
 }
