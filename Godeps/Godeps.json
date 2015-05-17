@@ -26,6 +26,10 @@
 			"Rev": "1d9daca83fc3cf35d01b9d0ac2debad3453bf178"
 		},
 		{
+			"ImportPath": "github.com/twinj/uuid",
+			"Rev": "4d772442af203e27723acc7d1eea6c93cd319c57"
+		},
+		{
 			"ImportPath": "github.com/xxtea/xxtea-go/xxtea",
 			"Rev": "0a1603ba22ae4edf0f8e62d93b615983e96f5f56"
 		},
