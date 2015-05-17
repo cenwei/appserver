@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/hprose/hprose-go/hprose"
-	"github.com/sharelog/appserver/sessionStore"
+	"github.com/sharelog/appserver/authtoken"
+	"github.com/sharelog/appserver/log"
 	"github.com/sharelog/appserver/symmetric"
 )
 
@@ -16,8 +17,7 @@ var _ hprose.Filter = symmetricEncryption{}
 type symmetricEncryption struct {
 	symmetric         symmetric.Symmetric
 	headerAccessToken string // the token header name
-	sessionKey        string // the key name in session
-	getter            sessionStore.Getter
+	tokenStore        authtoken.TokenStore
 }
 
 func getTokenFromContext(headerAccessToken string, context hprose.Context) string {
@@ -29,14 +29,20 @@ func getTokenFromContext(headerAccessToken string, context hprose.Context) strin
 }
 
 func (f symmetricEncryption) filterFunc(data []byte, context hprose.Context, isInput bool) []byte {
-	token := getTokenFromContext(f.headerAccessToken, context)
-	if token != "" {
-		if key, ok := f.getter.Get(token, f.sessionKey).([]byte); ok && key != nil {
-			if isInput {
-				return f.symmetric.Decrypt(data, key)
-			}
-			return f.symmetric.Encrypt(data, key)
+	accessToken := getTokenFromContext(f.headerAccessToken, context)
+	if accessToken != "" {
+		token, err := f.tokenStore.Get(accessToken)
+		switch {
+		case authtoken.IsMongoErrorNotFound(err):
+			panic("Invalid access token, please login first")
+		case err != nil:
+			log.Errorf("mongodb error: %v", err)
+			panic("Server error")
 		}
+		if isInput {
+			return f.symmetric.Decrypt(data, token.PrivateKey)
+		}
+		return f.symmetric.Encrypt(data, token.PrivateKey)
 	}
 	return data
 }
