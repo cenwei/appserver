@@ -14,11 +14,6 @@ const (
 	HeaderAccessToken = "Access-Token"
 )
 
-// session keys
-const (
-	SessionXXTEA = "XXTEA"
-)
-
 var logLevelMapping = map[string]log.Level{
 	"trace": log.LevelTrace,
 	"debug": log.LevelDebug,
@@ -50,10 +45,9 @@ func main() {
 	handler := NewHTTPHproseService(&normalStub{}, debug)
 	SSLHandler := NewHTTPHproseService(&sslStub{}, debug)
 	handler.SetFilter(symmetricEncryption{
-		getter:            nil, // TODO: need to pass session in
+		tokenStore:        nil, // TODO: need to pass session in
 		symmetric:         symmetric.XXTEA{},
 		headerAccessToken: HeaderAccessToken,
-		sessionKey:        SessionXXTEA,
 	})
 
 	// register handlers for given pattern
