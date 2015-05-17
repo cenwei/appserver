@@ -55,8 +55,8 @@ func (m MongoSessionStore) Get(token string, key string) interface{} {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
-	data, err := m.findID(c, token)
-	if err != nil {
+	data := bson.M{}
+	if err := m.error(c.FindId(token).One(&data)); err != nil {
 		return nil
 	}
 	return data[key]
@@ -67,24 +67,14 @@ func (m MongoSessionStore) Set(token string, key string, val interface{}) error 
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
-	data, err := m.findID(c, token)
-	if err != nil {
+
+	_, err := c.UpsertId(token, bson.M{
+		"$set": bson.M{
+			key:           val,
+			indexModified: time.Now(),
+		}})
+	if err := m.error(err); err != nil {
 		return err
-	}
-
-	data[key] = val
-	data[indexModified] = time.Now()
-
-	// update if exist, else insert
-	if _, ok := data["_id"]; ok {
-		if err := m.error(c.UpdateId(token, data)); err != nil {
-			return err
-		}
-	} else {
-		data["_id"] = token
-		if err := m.error(c.Insert(data)); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -95,19 +85,7 @@ func (m MongoSessionStore) Delete(token string, key string) {
 	conn := m.mongoSession.Clone()
 	defer conn.Close()
 	c := conn.DB(m.databaseName).C(m.collectionName)
-	data, err := m.findID(c, token)
-	if err != nil {
-		return
-	}
-
-	// if not exist, do nothing
-	if _, ok := data["_id"]; !ok {
-		return
-	}
-
-	// update document
-	delete(data, key)
-	m.error(c.UpdateId(token, data))
+	m.error(c.UpdateId(token, bson.M{"$unset": bson.M{key: nil}}))
 }
 
 // Expire makes a token expired
@@ -119,12 +97,6 @@ func (m MongoSessionStore) Expire(token string) {
 }
 
 // help functions
-func (m MongoSessionStore) findID(c *mgo.Collection, token string) (bson.M, error) {
-	data := bson.M{}
-	err := c.FindId(token).One(&data)
-	return data, m.error(err)
-}
-
 func (m MongoSessionStore) error(err error) error {
 	switch err {
 	case mgo.ErrNotFound:
