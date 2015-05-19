@@ -3,13 +3,13 @@ package authtoken
 import (
 	"time"
 
-	"github.com/sharelog/appserver/uuid"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Token is an access token associated to userid & symmetric-algorithm key
 type Token struct {
-	AccessToken string `bson:"_id"`
-	UserID      int64
+	AccessToken interface{} `bson:"_id"`
+	UserID      interface{}
 	PrivateKey  []byte
 	Modified    time.Time `bson:"modified"`
 }
@@ -17,7 +17,7 @@ type Token struct {
 // NewToken creates a new token ready for use with userID & privateKey
 func NewToken(userID int64, privateKey []byte) Token {
 	return Token{
-		AccessToken: uuid.New(),
+		AccessToken: bson.NewObjectId(),
 		UserID:      userID,
 		PrivateKey:  privateKey,
 		Modified:    time.Now(),
